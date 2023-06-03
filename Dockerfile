@@ -1,5 +1,7 @@
 FROM python:3.11.3-slim-buster
 
+RUN apt-get update && apt-get install -y libzbar0
+
 RUN python3 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
