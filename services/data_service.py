@@ -152,6 +152,11 @@ def check_registration(user_id):
             return None
 
 
+def get_completed_first_step(user_id):
+    with connection.atomic():
+        return CompletedStep.get_or_none(user=user_id)
+
+
 def get_current_registration(user_id):
     with connection.atomic():
         return Registration.get_or_none(user=user_id)

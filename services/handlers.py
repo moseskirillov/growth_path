@@ -11,31 +11,50 @@ from telegram.constants import ParseMode
 from telegram.ext import ContextTypes
 
 from services.data_service import get_or_create_user, get_next_meeting, register_to_meeting, mark_a_visitor, \
-    find_user_by_id, cancel_registration, check_registration, delete_registration, get_current_registration
-from services.keyboards import start_keyboard, register_to_meeting_keyboard, cancel_registration_keyboard
+    find_user_by_id, cancel_registration, check_registration, delete_registration, get_current_registration, \
+    get_completed_first_step
+from services.keyboards import start_keyboard, register_to_meeting_keyboard, cancel_registration_keyboard, \
+    select_meeting_type_keyboard, select_first_step_keyboard, sign_up_for_baptism_keyboard
 
 GO_TO_LOGIN_TEXT = 'Вы не залогинены. Для логина, сначала нажмите /start'
+NEXT_BAPTISM_DATE = '30 сентября 2023 года'
 
 
 async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info('Обработка команды старт')
     if context.user_data.get('user_id') is None:
         user = get_or_create_user(
-            telegram_id=update.effective_message.from_user.id,
+            telegram_id=update.effective_chat.id,
             first_name=update.effective_chat.first_name,
             last_name=update.effective_chat.last_name,
             telegram_login=update.effective_chat.username
         )
         context.user_data['user_id'] = user.id
-    await update.message.reply_text(
+    if update.callback_query:
+        await update.callback_query.answer()
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id,
         text=f'Привет, {update.effective_chat.first_name}!\n'
              f'Чтобы зарегистрироваться на встречу,\n'
-             f'нажми на кнопку внизу',
+             f'нажмите на кнопку внизу',
         reply_markup=start_keyboard
     )
 
 
-async def find_next_meeting_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def select_meeting_type_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logging.info('Обработка команды на выбор доступных встреч')
+    user_id = context.user_data.get('user_id')
+    if user_id:
+        await update.message.reply_text(
+            text='Выберите, куда вы хотите зарегистрироваться',
+            parse_mode=ParseMode.HTML,
+            reply_markup=select_meeting_type_keyboard
+        )
+    else:
+        await update.message.reply_text(text=GO_TO_LOGIN_TEXT)
+
+
+async def find_next_step_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info('Обработка команды поиска следующей встречи')
     user_id = context.user_data.get('user_id')
     if user_id:
@@ -95,6 +114,28 @@ async def register_to_meeting_handler(update: Update, context: ContextTypes.DEFA
             chat_id=update.effective_chat.id,
             text=GO_TO_LOGIN_TEXT
         )
+
+
+async def select_baptism_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = context.user_data.get('user_id')
+    if user_id:
+        if get_completed_first_step(user_id) is not None:
+            await update.message.reply_text(
+                text=f'Ближайшее водное крещение пройдет\n{NEXT_BAPTISM_DATE}',
+                reply_markup=sign_up_for_baptism_keyboard,
+                parse_mode=ParseMode.HTML
+            )
+        else:
+            await update.message.reply_text(
+                text='Для принятия водного крещения необходимо пройти '
+                     'обязательные предварительные семинары\n'
+                     '<b>"Путь роста"</b>, которые проходят '
+                     'каждое воскресенье в 15:30 в малом зале.',
+                parse_mode=ParseMode.HTML,
+                reply_markup=select_first_step_keyboard
+            )
+    else:
+        await update.message.reply_text(text=GO_TO_LOGIN_TEXT)
 
 
 async def mark_a_visitor_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
