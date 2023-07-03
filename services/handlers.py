@@ -11,13 +11,11 @@ from telegram.constants import ParseMode
 from telegram.ext import ContextTypes
 
 from services.data_service import get_or_create_user, get_next_meeting, register_to_meeting, mark_a_visitor, \
-    find_user_by_id, cancel_registration, check_registration, delete_registration, get_current_registration, \
-    get_completed_first_step
+    find_user_by_id, cancel_registration, check_registration, delete_registration, get_current_registration
 from services.keyboards import start_keyboard, register_to_meeting_keyboard, cancel_registration_keyboard, \
-    select_meeting_type_keyboard, select_first_step_keyboard, sign_up_for_baptism_keyboard
+    select_meeting_type_keyboard
 
 GO_TO_LOGIN_TEXT = 'Вы не залогинены. Для логина, сначала нажмите /start'
-NEXT_BAPTISM_DATE = '30 сентября 2023 года'
 
 
 async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -114,28 +112,6 @@ async def register_to_meeting_handler(update: Update, context: ContextTypes.DEFA
             chat_id=update.effective_chat.id,
             text=GO_TO_LOGIN_TEXT
         )
-
-
-async def select_baptism_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = context.user_data.get('user_id')
-    if user_id:
-        if get_completed_first_step(user_id) is not None:
-            await update.message.reply_text(
-                text=f'Ближайшее водное крещение пройдет\n{NEXT_BAPTISM_DATE}',
-                reply_markup=sign_up_for_baptism_keyboard,
-                parse_mode=ParseMode.HTML
-            )
-        else:
-            await update.message.reply_text(
-                text='Для принятия водного крещения необходимо пройти '
-                     'обязательные предварительные семинары\n'
-                     '<b>"Путь роста"</b>, которые проходят '
-                     'каждое воскресенье в 15:30 в малом зале.',
-                parse_mode=ParseMode.HTML,
-                reply_markup=select_first_step_keyboard
-            )
-    else:
-        await update.message.reply_text(text=GO_TO_LOGIN_TEXT)
 
 
 async def mark_a_visitor_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):

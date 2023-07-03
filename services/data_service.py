@@ -38,8 +38,8 @@ def get_next_meeting(user_id):
             Step
             .select(Step.id)
             .join(CompletedStep, JOIN.LEFT_OUTER, on=(
-                (Step.id == CompletedStep.step_id) &
-                (CompletedStep.user_id == user_id)
+                    (Step.id == CompletedStep.step_id) &
+                    (CompletedStep.user_id == user_id)
             ))
             .where(CompletedStep.id.is_null(False))
             .order_by(Step.id.desc())
@@ -53,13 +53,13 @@ def get_next_meeting(user_id):
             .select(Meeting, MeetingDate)
             .join(MeetingDate)
             .join(CompletedMeeting, JOIN.LEFT_OUTER, on=(
-                (Meeting.id == CompletedMeeting.meeting_id) &
-                (CompletedMeeting.user_id == user_id)
+                    (Meeting.id == CompletedMeeting.meeting_id) &
+                    (CompletedMeeting.user_id == user_id)
             ))
             .join(Step, on=(Meeting.step_id == Step.id))
             .join(CompletedStep, JOIN.LEFT_OUTER, on=(
-                (Step.id == CompletedStep.step_id) &
-                (CompletedStep.user_id == user_id)
+                    (Step.id == CompletedStep.step_id) &
+                    (CompletedStep.user_id == user_id)
             ))
             .where(
                 CompletedMeeting.id.is_null(True),
@@ -153,6 +153,12 @@ def check_registration(user_id):
 
 
 def get_completed_first_step(user_id):
+    """
+    На данный момент не используется, позже можно будет
+    проверять, прошел ли юзер первый шаг
+    :param user_id: id пользователя
+    :return: пройденный шаг из таблицы шагов
+    """
     with connection.atomic():
         return CompletedStep.get_or_none(user=user_id)
 
