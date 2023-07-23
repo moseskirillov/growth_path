@@ -1,7 +1,7 @@
 from peewee import Model, PrimaryKeyField, DateTimeField, ForeignKeyField
 
 from database.db_connect import connection
-from models.meeting_model import Meeting
+from entities.meeting_model import Meeting
 
 
 class MeetingDate(Model):

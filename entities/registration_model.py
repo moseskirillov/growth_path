@@ -1,8 +1,8 @@
 from peewee import Model, PrimaryKeyField, DateField, ForeignKeyField
 
 from database.db_connect import connection
-from models.meeting_date import MeetingDate
-from models.user_model import User
+from entities.meeting_date import MeetingDate
+from entities.user_model import User
 
 
 class Registration(Model):

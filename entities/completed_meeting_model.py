@@ -1,8 +1,8 @@
 from peewee import Model, PrimaryKeyField, ForeignKeyField, DateField
 
 from database.db_connect import connection
-from models.meeting_model import Meeting
-from models.user_model import User
+from entities.meeting_model import Meeting
+from entities.user_model import User
 
 
 class CompletedMeeting(Model):

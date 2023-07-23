@@ -1,8 +1,8 @@
 from peewee import Model, PrimaryKeyField, ForeignKeyField, DateField
 
 from database.db_connect import connection
-from models.step_model import Step
-from models.user_model import User
+from entities.step_model import Step
+from entities.user_model import User
 
 
 class CompletedStep(Model):

@@ -2,15 +2,17 @@ import logging
 from datetime import datetime, date
 
 from peewee import JOIN
+from telegram.ext import ContextTypes
 
 from database.db_connect import connection
-from models.completed_meeting_model import CompletedMeeting
-from models.completed_step_model import CompletedStep
-from models.meeting_date import MeetingDate
-from models.meeting_model import Meeting
-from models.registration_model import Registration
-from models.step_model import Step
-from models.user_model import User
+from entities.completed_meeting_model import CompletedMeeting
+from entities.completed_step_model import CompletedStep
+from entities.meeting_date import MeetingDate
+from entities.meeting_model import Meeting
+from entities.registration_model import Registration
+from entities.step_model import Step
+from entities.user_model import User
+from models.meeting_request import MeetingRequest
 
 
 def get_or_create_user(telegram_id, first_name, last_name, telegram_login):
@@ -32,7 +34,7 @@ def get_or_create_user(telegram_id, first_name, last_name, telegram_login):
         return user
 
 
-def get_next_meeting(user_id):
+def get_next_meeting(user_id, context: ContextTypes.DEFAULT_TYPE):
     with connection.atomic():
         next_step = (
             Step
@@ -48,7 +50,7 @@ def get_next_meeting(user_id):
 
         next_step_id = next_step.id + 1 if next_step else 1
 
-        return (
+        next_meeting = (
             Meeting
             .select(Meeting, MeetingDate)
             .join(MeetingDate)
@@ -70,6 +72,20 @@ def get_next_meeting(user_id):
             .order_by(MeetingDate.date)
             .first()
         )
+
+        response_message = None
+
+        if next_meeting:
+            formatted_date = next_meeting.meetingdate.date.strftime('%d.%m.%Y %H:%M')
+            response_message = f'<b>Ближайшая встреча</b>: {next_meeting.title}\n' \
+                               f'<b>Дата проведения</b>: {formatted_date}'
+            context.user_data['next_meeting_id'] = next_meeting.meetingdate.id
+            context.user_data['next_meeting_number'] = next_meeting.meetingdate.meeting.order
+            context.user_data['next_meeting_title'] = next_meeting.title
+            context.user_data['next_meeting_date'] = next_meeting.meetingdate.date.strftime('%d.%m.%Y')
+            context.user_data['next_meeting_step'] = next_meeting.step.id
+
+        return response_message
 
 
 def register_to_meeting(user_id, meeting_id):
@@ -116,10 +132,19 @@ def mark_a_visitor(registration_id):
                         step=register.meeting_date.meeting.step,
                         date_of_completion=date.today()
                     )
-                return f'{register.user.first_name} {register.user.last_name} ' \
-                       f'успешно отмечен на встрече\n"{register.meeting_date.meeting.title}"'
+                request = MeetingRequest(
+                    date=register.meeting_date.date.strftime('%d.%m.%Y'),
+                    step_number=register.meeting_date.meeting.step.id,
+                    meeting_number=register.meeting_date.meeting.order,
+                    meeting_title=register.meeting_date.meeting.title,
+                    first_name='',
+                    last_name='',
+                    telegram_login=''
+                )
+                return request, f'{register.user.first_name} {register.user.last_name} ' \
+                                f'успешно отмечен на встрече\n"{register.meeting_date.meeting.title}"'
             else:
-                return 'Посетитель уже прошел эту встречу'
+                return None, 'Посетитель уже прошел эту встречу'
 
 
 def find_user_by_id(user_id):

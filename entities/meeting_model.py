@@ -1,7 +1,7 @@
 from peewee import Model, PrimaryKeyField, CharField, ForeignKeyField, IntegerField
 
 from database.db_connect import connection
-from models.step_model import Step
+from entities.step_model import Step
 
 
 class Meeting(Model):

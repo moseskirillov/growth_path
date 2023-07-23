@@ -1,3 +1,4 @@
 /venv/
 .idea
 /google_creds.json
+/sheets-key.json

@@ -4,7 +4,6 @@ from telegram import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, 
 REGISTER = 'Зарегистрироваться'
 RETURN = 'Вернуться'
 STEP_REGISTER_CALLBACK = 'steps_register'
-BAPTISM_REGISTER_CALLBACK = 'baptism_register'
 RETURN_CALLBACK = 'return'
 
 start_keyboard = ReplyKeyboardMarkup([
@@ -30,10 +29,5 @@ cancel_registration_keyboard = ReplyKeyboardMarkup([
     [KeyboardButton(text='Отменить регистрацию'), KeyboardButton(text='Получить QR код')],
     [KeyboardButton(text=RETURN)]
 ], resize_keyboard=True, one_time_keyboard=True)
-
-sign_up_for_baptism_keyboard = InlineKeyboardMarkup([
-    [InlineKeyboardButton(text='Записаться на крещение', callback_data=BAPTISM_REGISTER_CALLBACK)],
-     [InlineKeyboardButton(text=RETURN, callback_data=RETURN_CALLBACK)]
-])
 
 remove_keyboard = ReplyKeyboardRemove()

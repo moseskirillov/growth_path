@@ -1,11 +1,11 @@
 from database.db_connect import connection
-from models.completed_meeting_model import CompletedMeeting
-from models.completed_step_model import CompletedStep
-from models.meeting_date import MeetingDate
-from models.meeting_model import Meeting
-from models.registration_model import Registration
-from models.step_model import Step
-from models.user_model import User
+from entities.completed_meeting_model import CompletedMeeting
+from entities.completed_step_model import CompletedStep
+from entities.meeting_date import MeetingDate
+from entities.meeting_model import Meeting
+from entities.registration_model import Registration
+from entities.step_model import Step
+from entities.user_model import User
 
 
 def database_init():
