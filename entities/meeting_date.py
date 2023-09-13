@@ -12,4 +12,4 @@ class MeetingDate(Model):
     class Meta:
         db_table = 'meetings_dates'
         database = connection
-        schema = 'growth'
+        schema = 'growth_path_bot'

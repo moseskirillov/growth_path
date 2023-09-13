@@ -14,4 +14,4 @@ class CompletedStep(Model):
     class Meta:
         db_table = 'completed_steps'
         database = connection
-        schema = 'growth'
+        schema = 'growth_path_bot'

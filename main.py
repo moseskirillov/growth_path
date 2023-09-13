@@ -25,10 +25,10 @@ def main():
     bot.add_handler(CallbackQueryHandler(register_to_meeting_handler, pattern=STEP_REGISTER_CALLBACK))
     bot.add_handler(CallbackQueryHandler(start_handler, pattern=RETURN_CALLBACK))
     bot.run_webhook(
-        listen='0.0.0.0',
-        port=5001,
-        url_path='growth',
-        webhook_url='https://1493881-cr74590.tw1.ru/growth',
+        listen=os.getenv('LISTEN'),
+        port=int(os.getenv('PORT')),
+        url_path='',
+        webhook_url=os.getenv('URL'),
     )
 
 

@@ -130,9 +130,6 @@ async def mark_a_visitor_handler(update: Update, context: ContextTypes.DEFAULT_T
             delete_registration(registration_id)
             os.remove(file_path)
             if request is not None:
-                request.first_name = update.effective_chat.first_name
-                request.last_name = update.effective_chat.last_name
-                request.telegram_login = update.effective_chat.username
                 mark_visit_is_completed(request)
             await update.message.reply_text(
                 text=register_result

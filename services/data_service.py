@@ -101,50 +101,53 @@ def register_to_meeting(user_id, meeting_id):
 def mark_a_visitor(registration_id):
     with connection.atomic():
         logging.info('Получаю данные о регистрации')
-        registration: [Registration] = (Registration
-                                        .select()
-                                        .where(Registration.id == registration_id)
-                                        .prefetch(User, MeetingDate, Meeting))
-        for register in registration:
-            logging.info('Получил данные о регистрации')
-            logging.info('Создаю запись о посещенной встрече')
-            _, created = CompletedMeeting.get_or_create(
-                user=register.user_id,
-                meeting=register.meeting_date.meeting_id,
-                date_of_completion=datetime.now()
-            )
-            logging.info('Создал запись о посещенной встрече')
-            if created:
-                completed_meetings = (
-                    CompletedMeeting
-                    .select()
-                    .join(Registration, on=(CompletedMeeting.user == Registration.user))
-                    .join(MeetingDate, on=(Registration.meeting_date == MeetingDate.id))
-                    .join(Meeting, on=(MeetingDate.meeting == Meeting.id))
-                    .where(CompletedMeeting.user == register.user_id,
-                           Meeting.step == register.meeting_date.meeting.step)
-                    .distinct()
-                    .count()
+        registration = (Registration
+                        .select()
+                        .where(Registration.id == registration_id)
+                        .prefetch(User, MeetingDate, Meeting))
+        if len(registration) > 0:
+            for register in registration:
+                logging.info('Получил данные о регистрации')
+                logging.info('Создаю запись о посещенной встрече')
+                _, created = CompletedMeeting.get_or_create(
+                    user=register.user_id,
+                    meeting=register.meeting_date.meeting_id,
+                    date_of_completion=datetime.now()
                 )
-                if completed_meetings == 4:
-                    CompletedStep.get_or_create(
-                        user=register.user,
-                        step=register.meeting_date.meeting.step,
-                        date_of_completion=date.today()
+                logging.info('Создал запись о посещенной встрече')
+                if created:
+                    completed_meetings = (
+                        CompletedMeeting
+                        .select()
+                        .join(Registration, on=(CompletedMeeting.user == Registration.user))
+                        .join(MeetingDate, on=(Registration.meeting_date == MeetingDate.id))
+                        .join(Meeting, on=(MeetingDate.meeting == Meeting.id))
+                        .where(CompletedMeeting.user == register.user_id,
+                               Meeting.step == register.meeting_date.meeting.step)
+                        .distinct()
+                        .count()
                     )
-                request = MeetingRequest(
-                    date=register.meeting_date.date.strftime('%d.%m.%Y'),
-                    step_number=register.meeting_date.meeting.step.id,
-                    meeting_number=register.meeting_date.meeting.order,
-                    meeting_title=register.meeting_date.meeting.title,
-                    first_name='',
-                    last_name='',
-                    telegram_login=''
-                )
-                return request, f'{register.user.first_name} {register.user.last_name} ' \
-                                f'успешно отмечен на встрече\n"{register.meeting_date.meeting.title}"'
-            else:
-                return None, 'Посетитель уже прошел эту встречу'
+                    if completed_meetings == 4:
+                        CompletedStep.get_or_create(
+                            user=register.user,
+                            step=register.meeting_date.meeting.step,
+                            date_of_completion=date.today()
+                        )
+                    request = MeetingRequest(
+                        date=register.meeting_date.date.strftime('%d.%m.%Y'),
+                        step_number=register.meeting_date.meeting.step.id,
+                        meeting_number=register.meeting_date.meeting.order,
+                        meeting_title=register.meeting_date.meeting.title,
+                        first_name=register.user.first_name,
+                        last_name=register.user.last_name if register.user.last_name else '',
+                        telegram_login=register.user.telegram_login
+                    )
+                    return request, f'{register.user.first_name} {register.user.last_name} ' \
+                                    f'успешно отмечен на встрече\n"{register.meeting_date.meeting.title}"'
+                else:
+                    return None, 'Посетитель уже прошел эту встречу'
+        else:
+            return None, 'Такая встреча не найдена'
 
 
 def find_user_by_id(user_id):

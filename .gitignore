@@ -2,3 +2,5 @@
 .idea
 /google_creds.json
 /sheets-key.json
+/.env-growth
+/default

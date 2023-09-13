@@ -14,4 +14,4 @@ class Registration(Model):
     class Meta:
         db_table = 'registration'
         database = connection
-        schema = 'growth'
+        schema = 'growth_path_bot'

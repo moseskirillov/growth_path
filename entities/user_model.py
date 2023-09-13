@@ -19,4 +19,4 @@ class User(Model):
     class Meta:
         db_table = 'users'
         database = connection
-        schema = 'growth'
+        schema = 'growth_path_bot'

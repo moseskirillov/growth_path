@@ -10,4 +10,4 @@ class Step(Model):
     class Meta:
         db_table = 'steps'
         database = connection
-        schema = 'growth'
+        schema = 'growth_path_bot'

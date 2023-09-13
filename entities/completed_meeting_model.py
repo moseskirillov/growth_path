@@ -14,4 +14,4 @@ class CompletedMeeting(Model):
     class Meta:
         db_table = 'completed_meetings'
         database = connection
-        schema = 'growth'
+        schema = 'growth_path_bot'

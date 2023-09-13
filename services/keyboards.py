@@ -7,7 +7,7 @@ STEP_REGISTER_CALLBACK = 'steps_register'
 RETURN_CALLBACK = 'return'
 
 start_keyboard = ReplyKeyboardMarkup([
-    [KeyboardButton(text=REGISTER), KeyboardButton(text='Мои регистрации')],
+    [KeyboardButton(text=REGISTER)], [KeyboardButton(text='Мои регистрации')],
 ], resize_keyboard=True, one_time_keyboard=True)
 
 select_meeting_type_keyboard = ReplyKeyboardMarkup([
